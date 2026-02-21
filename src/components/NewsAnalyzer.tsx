@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import ResultCard from "./ResultCard";
+import { getSessionId } from "./AnalysisHistory";
 
 export interface AnalysisResult {
   verdict: "REAL" | "FAKE";
@@ -19,7 +20,7 @@ const SAMPLE_TEXTS = [
   "SHOCKING!! Government SECRETLY implants microchips in ALL vaccines!! Exposed by whistleblower!! Share before they DELETE this!! 100% PROOF inside!!!",
 ];
 
-const NewsAnalyzer = () => {
+const NewsAnalyzer = ({ onAnalysisComplete }: { onAnalysisComplete?: () => void }) => {
   const [text, setText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -42,7 +43,20 @@ const NewsAnalyzer = () => {
       if (error) throw error;
       if (data.error) throw new Error(data.error);
 
-      setResult(data as AnalysisResult);
+      const analysisResult = data as AnalysisResult;
+      setResult(analysisResult);
+
+      // Save to history
+      await supabase.from("analysis_history").insert({
+        session_id: getSessionId(),
+        input_text: text.trim().substring(0, 2000),
+        verdict: analysisResult.verdict,
+        confidence: analysisResult.confidence,
+        summary: analysisResult.summary,
+        indicators: analysisResult.indicators,
+      });
+
+      onAnalysisComplete?.();
     } catch (e: any) {
       toast({ title: "Analysis failed", description: e.message || "Please try again.", variant: "destructive" });
     } finally {
@@ -56,7 +70,7 @@ const NewsAnalyzer = () => {
   };
 
   return (
-    <section className="container max-w-3xl mx-auto px-4 pb-24">
+    <section className="container max-w-3xl mx-auto px-4 pb-16">
       <AnimatePresence mode="wait">
         {!result ? (
           <motion.div
@@ -99,7 +113,6 @@ const NewsAnalyzer = () => {
               </div>
             </div>
 
-            {/* Scanning animation */}
             {isAnalyzing && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -114,7 +127,6 @@ const NewsAnalyzer = () => {
               </motion.div>
             )}
 
-            {/* Sample texts */}
             {!isAnalyzing && text.length === 0 && (
               <div className="space-y-3">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Try a sample</p>
