@@ -1,13 +1,17 @@
 import { useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import HeroSection from "@/components/HeroSection";
 import NewsAnalyzer from "@/components/NewsAnalyzer";
 import AnalysisHistory from "@/components/AnalysisHistory";
 import ThemeToggle from "@/components/ThemeToggle";
-import { Newspaper, Github, Shield, Users, BookOpen, BarChart3 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Newspaper, Github, Shield, Users, BookOpen, BarChart3, LogIn, LogOut, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [historyKey, setHistoryKey] = useState(0);
   const refreshHistory = useCallback(() => setHistoryKey((k) => k + 1), []);
+  const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -18,10 +22,26 @@ const Index = () => {
             <Newspaper className="w-5 h-5 text-primary" />
             <span>VerifyAI</span>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-muted-foreground hidden sm:block">
-              AI-Powered News Verification
-            </span>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground hidden sm:flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" />
+                  {user.email}
+                </span>
+                <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5 text-xs">
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs">
+                <Link to="/auth">
+                  <LogIn className="w-3.5 h-3.5" />
+                  Sign In
+                </Link>
+              </Button>
+            )}
             <ThemeToggle />
           </div>
         </div>

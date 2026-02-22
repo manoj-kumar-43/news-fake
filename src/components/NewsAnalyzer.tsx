@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import ResultCard from "./ResultCard";
-import { getSessionId } from "./AnalysisHistory";
 
 export interface AnalysisResult {
   verdict: "REAL" | "FAKE";
@@ -25,6 +25,7 @@ const NewsAnalyzer = ({ onAnalysisComplete }: { onAnalysisComplete?: () => void 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const analyze = async () => {
     if (text.trim().length < 20) {
@@ -46,15 +47,17 @@ const NewsAnalyzer = ({ onAnalysisComplete }: { onAnalysisComplete?: () => void 
       const analysisResult = data as AnalysisResult;
       setResult(analysisResult);
 
-      // Save to history
-      await supabase.from("analysis_history").insert({
-        session_id: getSessionId(),
-        input_text: text.trim().substring(0, 2000),
-        verdict: analysisResult.verdict,
-        confidence: analysisResult.confidence,
-        summary: analysisResult.summary,
-        indicators: analysisResult.indicators,
-      });
+      // Save to history if logged in
+      if (user) {
+        await supabase.from("analysis_history").insert({
+          user_id: user.id,
+          input_text: text.trim().substring(0, 2000),
+          verdict: analysisResult.verdict,
+          confidence: analysisResult.confidence,
+          summary: analysisResult.summary,
+          indicators: analysisResult.indicators,
+        });
+      }
 
       onAnalysisComplete?.();
     } catch (e: any) {

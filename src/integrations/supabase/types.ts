@@ -23,6 +23,7 @@ export type Database = {
           input_text: string
           session_id: string
           summary: string
+          user_id: string | null
           verdict: string
         }
         Insert: {
@@ -33,6 +34,7 @@ export type Database = {
           input_text: string
           session_id?: string
           summary: string
+          user_id?: string | null
           verdict: string
         }
         Update: {
@@ -43,7 +45,35 @@ export type Database = {
           input_text?: string
           session_id?: string
           summary?: string
+          user_id?: string | null
           verdict?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
