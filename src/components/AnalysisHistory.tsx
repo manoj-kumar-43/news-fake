@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { History, ShieldCheck, ShieldAlert, Clock, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
 interface HistoryItem {
@@ -13,28 +14,20 @@ interface HistoryItem {
   created_at: string;
 }
 
-const SESSION_KEY = "verifyai_session_id";
-
-const getSessionId = () => {
-  let id = localStorage.getItem(SESSION_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(SESSION_KEY, id);
-  }
-  return id;
-};
-
-export { getSessionId };
-
 const AnalysisHistory = () => {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   const fetchHistory = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from("analysis_history")
       .select("id, input_text, verdict, confidence, summary, created_at")
-      .eq("session_id", getSessionId())
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(10);
 
@@ -44,17 +37,18 @@ const AnalysisHistory = () => {
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [user]);
 
   const clearHistory = async () => {
+    if (!user) return;
     await supabase
       .from("analysis_history")
       .delete()
-      .eq("session_id", getSessionId());
+      .eq("user_id", user.id);
     setHistory([]);
   };
 
-  if (loading) return null;
+  if (loading || !user) return null;
   if (history.length === 0) return null;
 
   return (
