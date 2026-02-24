@@ -7,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import ResultCard from "./ResultCard";
-import AnalysisRating from "./AnalysisRating";
 
 export interface AnalysisResult {
   verdict: "REAL" | "FAKE";
@@ -25,7 +24,7 @@ const NewsAnalyzer = ({ onAnalysisComplete }: { onAnalysisComplete?: () => void 
   const [text, setText] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [analysisId, setAnalysisId] = useState<string | null>(null);
+  
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -57,8 +56,7 @@ const NewsAnalyzer = ({ onAnalysisComplete }: { onAnalysisComplete?: () => void 
           confidence: analysisResult.confidence,
           summary: analysisResult.summary,
           indicators: analysisResult.indicators,
-        }).select("id").single();
-        if (inserted) setAnalysisId(inserted.id);
+        });
       }
 
       onAnalysisComplete?.();
@@ -72,7 +70,7 @@ const NewsAnalyzer = ({ onAnalysisComplete }: { onAnalysisComplete?: () => void 
   const reset = () => {
     setText("");
     setResult(null);
-    setAnalysisId(null);
+    
   };
 
   return (
@@ -157,7 +155,6 @@ const NewsAnalyzer = ({ onAnalysisComplete }: { onAnalysisComplete?: () => void 
             className="space-y-6"
           >
             <ResultCard result={result} text={text} />
-            <AnalysisRating analysisId={analysisId ?? undefined} />
             <div className="flex justify-center">
               <Button onClick={reset} variant="outline" className="gap-2">
                 <RotateCcw className="w-4 h-4" />
