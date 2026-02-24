@@ -5,13 +5,16 @@ import NewsAnalyzer from "@/components/NewsAnalyzer";
 import AnalysisHistory from "@/components/AnalysisHistory";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
-import { Newspaper, Github, Shield, Users, BookOpen, BarChart3, LogIn, LogOut, User } from "lucide-react";
+import { Newspaper, Github, Shield, Users, BookOpen, BarChart3, LogIn, LogOut, User, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRole } from "@/hooks/useRole";
+import FeedbackDialog from "@/components/FeedbackDialog";
 
 const Index = () => {
   const [historyKey, setHistoryKey] = useState(0);
   const refreshHistory = useCallback(() => setHistoryKey((k) => k + 1), []);
   const { user, signOut } = useAuth();
+  const { isAdmin } = useRole();
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,6 +32,15 @@ const Index = () => {
                   <User className="w-3.5 h-3.5" />
                   {user.email}
                 </span>
+                <FeedbackDialog />
+                {isAdmin && (
+                  <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs">
+                    <Link to="/admin">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      Admin
+                    </Link>
+                  </Button>
+                )}
                 <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5 text-xs">
                   <LogOut className="w-3.5 h-3.5" />
                   Sign Out
