@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Newspaper, Mail, Lock, User, Loader2, Eye, EyeOff } from "lucide-react";
+import { Newspaper, Mail, Lock, User, Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,9 +58,15 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <nav className="border-b border-border/50 backdrop-blur-md bg-background/80">
         <div className="container flex items-center justify-between h-16 px-4">
-          <div className="flex items-center gap-2 font-heading font-bold text-lg">
-            <Newspaper className="w-5 h-5 text-primary" />
-            <span>VerifyAI</span>
+          <div className="flex items-center gap-4">
+            <Link to="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Link>
+            <div className="flex items-center gap-2 font-heading font-bold text-lg">
+              <Newspaper className="w-5 h-5 text-primary" />
+              <span>VerifyAI</span>
+            </div>
           </div>
           <ThemeToggle />
         </div>
